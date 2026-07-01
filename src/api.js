@@ -1,5 +1,6 @@
 // Cliente HTTP fino pra API PHP.
-const BASE = import.meta.env.VITE_API_URL || '/backend/api'
+// Caminho relativo: o proxy (Vite em dev, Vercel em prod) encaminha /api pro VPS.
+const BASE = import.meta.env.VITE_API_URL || '/api'
 
 function token() {
   return localStorage.getItem('token') || ''
