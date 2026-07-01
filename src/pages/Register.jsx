@@ -4,7 +4,7 @@ import { api } from '../api.js'
 import { useAuth } from '../auth.jsx'
 
 export default function Register() {
-  const [form, setForm] = useState({ email: '', password: '', confirm: '' })
+  const [form, setForm] = useState({ account_number: '', email: '', password: '', confirm: '' })
   const [error, setError] = useState('')
   const [created, setCreated] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -43,6 +43,17 @@ export default function Register() {
     <div className="card">
       <h1>Criar conta</h1>
       <form onSubmit={submit}>
+        <label>Número da conta
+          <input
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            value={form.account_number}
+            onChange={(e) => setForm({ ...form, account_number: e.target.value.replace(/\D/g, '') })}
+            placeholder="Escolha um número (só dígitos)"
+            required
+          />
+        </label>
         <label>E-mail
           <input type="email" value={form.email} onChange={set('email')} required />
         </label>
