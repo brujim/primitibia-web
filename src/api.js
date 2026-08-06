@@ -35,4 +35,9 @@ export const api = {
     request(`ranking.php?type=${encodeURIComponent(type)}&vocation=${encodeURIComponent(vocation)}&page=${page}`),
   createCharacter: (payload) => request('character_create.php', { method: 'POST', body: payload }),
   deleteCharacter: (id)      => request('character_delete.php', { method: 'DELETE', body: { id } }),
+  // Core Guard (anti-cheat) — só GOD.
+  guardReports:    ({ page = 1, status = 'all' } = {}) =>
+    request(`guard_reports.php?page=${page}&status=${encodeURIComponent(status)}`),
+  guardReportMark: (id, reviewed, notes) =>
+    request('guard_report_mark.php', { method: 'POST', body: { id, reviewed, notes } }),
 }

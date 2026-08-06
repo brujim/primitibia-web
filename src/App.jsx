@@ -1,10 +1,13 @@
+import { useEffect, useState } from "react";
 import { Routes, Route, Navigate, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./auth.jsx";
+import { api } from "./api.js";
 import Register from "./pages/Register.jsx";
 import Login from "./pages/Login.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import CreateCharacter from "./pages/CreateCharacter.jsx";
 import Ranking from "./pages/Ranking.jsx";
+import GuardReports from "./pages/GuardReports.jsx";
 
 // URL do arquivo do client hospedado na VPS (definida no .env → VITE_DOWNLOAD_URL).
 const DOWNLOAD_URL = import.meta.env.VITE_DOWNLOAD_URL || "";
@@ -17,6 +20,16 @@ function Protected({ children }) {
 export default function App() {
   const { isAuthed, account, logout } = useAuth();
   const navigate = useNavigate();
+
+  // Descobre se a conta logada é GOD (accounts.type >= 6) p/ mostrar o link do Guard.
+  const [accountType, setAccountType] = useState(0);
+  useEffect(() => {
+    if (isAuthed) {
+      api.me().then((m) => setAccountType(m.account_type || 0)).catch(() => {});
+    } else {
+      setAccountType(0);
+    }
+  }, [isAuthed]);
 
   return (
     <div className="app">
@@ -35,6 +48,7 @@ export default function App() {
           <Link to="/ranking">Ranking</Link>
           {isAuthed ? (
             <>
+              {accountType >= 6 && <Link to="/admin/guard">Guard</Link>}
               <span className="acc">Conta #{account}</span>
               <button
                 className="link"
@@ -79,6 +93,14 @@ export default function App() {
             element={
               <Protected>
                 <CreateCharacter />
+              </Protected>
+            }
+          />
+          <Route
+            path="/admin/guard"
+            element={
+              <Protected>
+                <GuardReports />
               </Protected>
             }
           />

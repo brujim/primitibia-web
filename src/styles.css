@@ -157,3 +157,12 @@ input:focus, select:focus { outline: none; border-color: var(--gold); }
 table.chars { width: 100%; border-collapse: collapse; margin-top: 16px; }
 table.chars th, table.chars td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); }
 table.chars th { color: var(--muted); font-weight: 600; font-size: 13px; }
+
+/* Core Guard — tabela de reports */
+.table-wrap { overflow-x: auto; margin-top: 16px; }
+table.guard-table { width: 100%; border-collapse: collapse; font-size: 13px; white-space: nowrap; }
+table.guard-table th, table.guard-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+table.guard-table th { color: var(--muted); font-weight: 600; }
+table.guard-table td.detected { color: var(--gold); font-weight: 600; white-space: normal; }
+table.guard-table tr.reviewed { opacity: 0.55; }
+.btn.small { padding: 4px 10px; font-size: 12px; }
