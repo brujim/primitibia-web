@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { api } from '../api.js'
+import { useAuth } from '../auth.jsx'
 
 const brl = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
@@ -36,14 +38,13 @@ function CopyButton({ text, label = 'Copiar' }) {
 }
 
 export default function Donate() {
+  const { isAuthed, account } = useAuth()
   const [packages, setPackages] = useState([])
   const [pixEnabled, setPixEnabled] = useState(false)
   const [coins, setCoins] = useState([])
   const [loadingCfg, setLoadingCfg] = useState(true)
 
   const [pkgId, setPkgId] = useState('')
-  const [account, setAccount] = useState('')
-  const [email, setEmail] = useState('')
   const [method, setMethod] = useState('pix')
   const [coin, setCoin] = useState('')
 
@@ -88,11 +89,10 @@ export default function Donate() {
   async function submit() {
     setError('')
     if (!pkg) return setError('Escolha um pacote.')
-    if (!account.trim()) return setError('Informe o número da sua conta.')
     if (method === 'crypto' && !coin) return setError('Escolha uma moeda.')
     setSubmitting(true)
     try {
-      const res = await api.donateCreate({ account, package_id: pkgId, method, coin, email })
+      const res = await api.donateCreate({ package_id: pkgId, method, coin })
       setResult(res)
       setPaid(false)
     } catch (e) {
@@ -110,6 +110,29 @@ export default function Donate() {
   }
 
   if (loadingCfg) return <div className="card"><p className="muted">Carregando...</p></div>
+
+  // ---- Precisa estar logado (a conta que recebe os pontos vem do login) ----
+  if (!isAuthed) {
+    return (
+      <div className="donate">
+        <div className="donate-intro">
+          <h1>Apoie a Primitivia 💛</h1>
+          <p>
+            A Primitivia se mantém no ar graças ao apoio de quem joga. Doar é{' '}
+            <strong>totalmente voluntário</strong> e, como <strong>agradecimento</strong>,
+            creditamos pontos na sua conta pra usar na loja do jogo.
+          </p>
+        </div>
+        <div className="card donate-login">
+          <p>Entre na sua conta pra doar — assim os pontos caem automaticamente na conta certa.</p>
+          <div className="donate-login-cta">
+            <Link className="btn" to="/login">Entrar</Link>
+            <Link className="btn ghost" to="/register">Criar conta</Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   // ---- Tela de pagamento (após criar a doação) ----
   if (result) {
@@ -202,22 +225,9 @@ export default function Donate() {
           ))}
         </div>
 
-        <h2 className="donate-step">2 · Sua conta</h2>
-        <div className="donate-fields">
-          <label>Número da conta (onde creditamos os pontos)
-            <input
-              inputMode="numeric"
-              value={account}
-              onChange={(e) => setAccount(e.target.value.replace(/\D/g, ''))}
-              placeholder="Ex: 12345"
-            />
-          </label>
-          <label>E-mail (opcional, para o recibo)
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="voce@email.com" />
-          </label>
-        </div>
+        <p className="donate-account">Os pontos serão creditados na sua conta <strong>#{account}</strong>.</p>
 
-        <h2 className="donate-step">3 · Forma de doação</h2>
+        <h2 className="donate-step">2 · Forma de doação</h2>
         <div className="method-tabs">
           <button
             type="button"

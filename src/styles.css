@@ -585,6 +585,20 @@ textarea:focus { outline: none; border-color: var(--gold-2); box-shadow: 0 0 0 3
 .pkg-bonus { color: var(--green); font-size: 12px; font-weight: 600; }
 
 .donate-fields { display: flex; flex-direction: column; gap: 14px; }
+.donate-account {
+  margin: 0 0 4px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(230, 194, 115, 0.07);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 14px;
+}
+.donate-account strong { color: var(--gold); }
+
+.donate-login { text-align: center; }
+.donate-login p { margin: 0 0 18px; color: var(--text); }
+.donate-login-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
 /* métodos */
 .method-tabs { display: flex; gap: 10px; }
