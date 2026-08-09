@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./auth.jsx";
 import { api } from "./api.js";
 import Landing from "./pages/Landing.jsx";
+import Donate from "./pages/Donate.jsx";
 import Register from "./pages/Register.jsx";
 import Login from "./pages/Login.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
@@ -73,6 +74,7 @@ export default function App() {
           )}
         </div>
         <nav>
+          <Link to="/doar" className="nav-donate" onClick={closeMenu}>Doar</Link>
           <Link to="/ranking" onClick={closeMenu}>Ranking</Link>
           {isAuthed ? (
             <>
@@ -102,6 +104,7 @@ export default function App() {
       <main className="site-main">
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/doar" element={<Page><Donate /></Page>} />
           <Route path="/register" element={<Page><Register /></Page>} />
           <Route path="/login" element={<Page><Login /></Page>} />
           <Route path="/ranking" element={<Page><Ranking /></Page>} />

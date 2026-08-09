@@ -33,6 +33,11 @@ export const api = {
   me:       ()        => request('me.php'),
   status:   ()        => request('status.php'),
   news:     ()        => request('news.php'),
+  // Doações
+  donatePackages: ()        => request('donate_packages.php'),
+  donateCreate:   (payload) => request('donate_create.php', { method: 'POST', body: payload }),
+  donateStatus:   (id)      => request(`donate_status.php?id=${id}`),
+  donateClaim:    (payload) => request('donate_claim.php', { method: 'POST', body: payload }),
   ranking:  ({ type, vocation, page }) =>
     request(`ranking.php?type=${encodeURIComponent(type)}&vocation=${encodeURIComponent(vocation)}&page=${page}`),
   createCharacter: (payload) => request('character_create.php', { method: 'POST', body: payload }),
