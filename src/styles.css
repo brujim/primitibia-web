@@ -586,7 +586,7 @@ textarea:focus { outline: none; border-color: var(--gold-2); box-shadow: 0 0 0 3
 
 .donate-fields { display: flex; flex-direction: column; gap: 14px; }
 .donate-account {
-  margin: 0 0 4px;
+  margin: 20px 0 4px;
   padding: 12px 14px;
   border-radius: 10px;
   background: rgba(230, 194, 115, 0.07);
