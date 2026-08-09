@@ -52,6 +52,7 @@ export default function Donate() {
   const [error, setError] = useState('')
   const [result, setResult] = useState(null) // resposta do donate_create
   const [paid, setPaid] = useState(false)
+  const [cryptoSubmitted, setCryptoSubmitted] = useState(false)
   const pollRef = useRef(null)
 
   useEffect(() => {
@@ -69,9 +70,11 @@ export default function Donate() {
       .finally(() => setLoadingCfg(false))
   }, [])
 
-  // Polling do status do PIX até creditar.
+  // Polling do status até creditar: PIX (sempre) e crypto (após enviar o comprovante).
   useEffect(() => {
-    if (!result || result.method !== 'pix' || paid) return
+    if (!result || paid) return
+    const shouldPoll = result.method === 'pix' || (result.method === 'crypto' && cryptoSubmitted)
+    if (!shouldPoll) return
     pollRef.current = setInterval(async () => {
       try {
         const s = await api.donateStatus(result.donation_id)
@@ -80,9 +83,9 @@ export default function Donate() {
           clearInterval(pollRef.current)
         }
       } catch { /* segue tentando */ }
-    }, 4000)
+    }, 5000)
     return () => clearInterval(pollRef.current)
-  }, [result, paid])
+  }, [result, paid, cryptoSubmitted])
 
   const pkg = packages.find((p) => p.id === pkgId)
 
@@ -106,6 +109,7 @@ export default function Donate() {
     clearInterval(pollRef.current)
     setResult(null)
     setPaid(false)
+    setCryptoSubmitted(false)
     setError('')
   }
 
@@ -172,16 +176,26 @@ export default function Donate() {
                 ⚠️ Envie <strong>somente {coinInfo(result.coin).label} pela rede {coinInfo(result.coin).network}</strong>.
                 Enviar por qualquer outra rede pode resultar em <strong>perda total dos fundos</strong>.
               </div>
+              {result.amount_crypto && (
+                <div className="crypto-amount">
+                  Envie exatamente <strong>{result.amount_crypto} {coinInfo(result.coin).label}</strong>
+                  <span className="crypto-amount-sub"> (≈ {brl(result.amount)})</span>
+                </div>
+              )}
               <ol className="crypto-steps">
-                <li>Envie o equivalente a <strong>{brl(result.amount)}</strong> em {coinInfo(result.coin).label} para o endereço abaixo.</li>
+                <li>Envie o valor acima em {coinInfo(result.coin).label} para o endereço abaixo.</li>
                 <li>Copie o <strong>comprovante (txid/hash)</strong> da transferência.</li>
-                <li>Cole ele aqui embaixo — vamos conferir e creditar os <strong>{result.points} pontos</strong> na conta #{account}.</li>
+                <li>Cole ele aqui embaixo — verificamos na blockchain e creditamos os <strong>{result.points} pontos</strong> na conta #{account}, automaticamente.</li>
               </ol>
               <label>Endereço · {coinInfo(result.coin).network}
                 <input className="crypto-addr" readOnly value={result.address} />
               </label>
               <CopyButton text={result.address} label="Copiar endereço" />
-              <CryptoClaim donationId={result.donation_id} />
+              <CryptoClaim
+                donationId={result.donation_id}
+                onCredited={() => setPaid(true)}
+                onPending={() => setCryptoSubmitted(true)}
+              />
               <button className="link" onClick={reset}>Voltar</button>
             </>
           )}
@@ -277,16 +291,17 @@ export default function Donate() {
   )
 }
 
-function CryptoClaim({ donationId }) {
+function CryptoClaim({ donationId, onCredited, onPending }) {
   const [txid, setTxid] = useState('')
-  const [sent, setSent] = useState(false)
+  const [pending, setPending] = useState(false)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
 
-  if (sent) {
+  if (pending) {
     return (
-      <div className="claim-ok">
-        Comprovante recebido! Assim que confirmarmos a transferência, os pontos serão creditados. Obrigado! 💛
+      <div className="donate-waiting">
+        <span className="dot" /> Comprovante recebido — confirmando na rede Tron (pode levar ~1 min).
+        Os pontos caem automaticamente.
       </div>
     )
   }
@@ -304,8 +319,13 @@ function CryptoClaim({ donationId }) {
           if (!txid.trim()) return setErr('Cole o comprovante.')
           setBusy(true)
           try {
-            await api.donateClaim({ donation_id: donationId, txid })
-            setSent(true)
+            const r = await api.donateClaim({ donation_id: donationId, txid })
+            if (r.credited) {
+              onCredited?.()
+            } else {
+              setPending(true)
+              onPending?.()
+            }
           } catch (e) {
             setErr(e.message)
           } finally {
@@ -313,7 +333,7 @@ function CryptoClaim({ donationId }) {
           }
         }}
       >
-        {busy ? 'Enviando...' : 'Enviar comprovante'}
+        {busy ? 'Verificando...' : 'Enviar comprovante'}
       </button>
     </div>
   )

@@ -38,6 +38,11 @@ export const api = {
   donateCreate:   (payload) => request('donate_create.php', { method: 'POST', body: payload }),
   donateStatus:   (id)      => request(`donate_status.php?id=${id}`),
   donateClaim:    (payload) => request('donate_claim.php', { method: 'POST', body: payload }),
+  // Doações — admin (GOD)
+  donationsList:   ({ page = 1, status = 'all' } = {}) =>
+    request(`donations_list.php?page=${page}&status=${encodeURIComponent(status)}`),
+  donationApprove: (id, action) =>
+    request('donation_approve.php', { method: 'POST', body: { id, action } }),
   ranking:  ({ type, vocation, page }) =>
     request(`ranking.php?type=${encodeURIComponent(type)}&vocation=${encodeURIComponent(vocation)}&page=${page}`),
   createCharacter: (payload) => request('character_create.php', { method: 'POST', body: payload }),

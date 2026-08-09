@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import CreateCharacter from "./pages/CreateCharacter.jsx";
 import Ranking from "./pages/Ranking.jsx";
 import GuardReports from "./pages/GuardReports.jsx";
+import DonationsAdmin from "./pages/DonationsAdmin.jsx";
 
 // URL do arquivo do client hospedado na VPS (definida no .env → VITE_DOWNLOAD_URL).
 const DOWNLOAD_URL = import.meta.env.VITE_DOWNLOAD_URL || "";
@@ -80,6 +81,7 @@ export default function App() {
             <>
               <Link to="/dashboard" onClick={closeMenu}>Painel</Link>
               {accountType >= 6 && <Link to="/admin/guard" onClick={closeMenu}>Guard</Link>}
+              {accountType >= 6 && <Link to="/admin/doacoes" onClick={closeMenu}>Doações</Link>}
               <span className="acc">Conta #{account}</span>
               <button
                 className="link"
@@ -134,6 +136,16 @@ export default function App() {
               <Page>
                 <Protected>
                   <GuardReports />
+                </Protected>
+              </Page>
+            }
+          />
+          <Route
+            path="/admin/doacoes"
+            element={
+              <Page>
+                <Protected>
+                  <DonationsAdmin />
                 </Protected>
               </Page>
             }
