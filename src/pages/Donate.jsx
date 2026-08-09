@@ -3,6 +3,19 @@ import { api } from '../api.js'
 
 const brl = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
+// Traduz a chave da moeda (do config) para nome + rede amigáveis (p/ orientar o doador).
+const COIN_INFO = {
+  USDT_TRC20: { label: 'USDT', network: 'Tron (TRC-20)', explorer: 'Tronscan' },
+  USDT_BEP20: { label: 'USDT', network: 'BNB Chain (BEP-20)', explorer: 'BscScan' },
+  USDT_ERC20: { label: 'USDT', network: 'Ethereum (ERC-20)', explorer: 'Etherscan' },
+  USDT_SOL:   { label: 'USDT', network: 'Solana (SPL)', explorer: 'Solscan' },
+  BTC:        { label: 'BTC',  network: 'Bitcoin', explorer: 'um explorer de Bitcoin' },
+  BNB:        { label: 'BNB',  network: 'BNB Chain (BEP-20)', explorer: 'BscScan' },
+  ETH:        { label: 'ETH',  network: 'Ethereum', explorer: 'Etherscan' },
+  SOL:        { label: 'SOL',  network: 'Solana', explorer: 'Solscan' },
+}
+const coinInfo = (c) => COIN_INFO[c] || { label: c, network: c, explorer: 'um explorer' }
+
 function CopyButton({ text, label = 'Copiar' }) {
   const [done, setDone] = useState(false)
   return (
@@ -130,15 +143,21 @@ export default function Donate() {
             </>
           ) : (
             <>
-              <h1>Doar com {result.coin}</h1>
-              <p className="muted">
-                Envie <strong>{brl(result.amount)}</strong> (equivalente em {result.coin}) para o endereço abaixo.
-                Depois cole o comprovante (txid) para creditarmos os <strong>{result.points} pontos</strong> na conta #{account}.
-              </p>
-              <label>Endereço {result.coin}
+              <h1>Doar com {coinInfo(result.coin).label}</h1>
+              <div className="crypto-net">Rede: <strong>{coinInfo(result.coin).network}</strong></div>
+              <div className="crypto-warn">
+                ⚠️ Envie <strong>somente {coinInfo(result.coin).label} pela rede {coinInfo(result.coin).network}</strong>.
+                Enviar por qualquer outra rede pode resultar em <strong>perda total dos fundos</strong>.
+              </div>
+              <ol className="crypto-steps">
+                <li>Envie o equivalente a <strong>{brl(result.amount)}</strong> em {coinInfo(result.coin).label} para o endereço abaixo.</li>
+                <li>Copie o <strong>comprovante (txid/hash)</strong> da transferência.</li>
+                <li>Cole ele aqui embaixo — vamos conferir e creditar os <strong>{result.points} pontos</strong> na conta #{account}.</li>
+              </ol>
+              <label>Endereço · {coinInfo(result.coin).network}
                 <input className="crypto-addr" readOnly value={result.address} />
               </label>
-              <CopyButton text={result.address} label={`Copiar endereço ${result.coin}`} />
+              <CopyButton text={result.address} label="Copiar endereço" />
               <CryptoClaim donationId={result.donation_id} />
               <button className="link" onClick={reset}>Voltar</button>
             </>
@@ -219,11 +238,22 @@ export default function Donate() {
         </div>
 
         {method === 'crypto' && coins.length > 0 && (
-          <label className="coin-select">Moeda
-            <select value={coin} onChange={(e) => setCoin(e.target.value)}>
-              {coins.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </label>
+          <>
+            <label className="coin-select">Moeda
+              <select value={coin} onChange={(e) => setCoin(e.target.value)}>
+                {coins.map((c) => {
+                  const ci = coinInfo(c)
+                  return <option key={c} value={c}>{ci.label} — {ci.network}</option>
+                })}
+              </select>
+            </label>
+            {coin && (
+              <p className="crypto-hint">
+                ⚠️ Envie <strong>{coinInfo(coin).label}</strong> pela rede{' '}
+                <strong>{coinInfo(coin).network}</strong> — não envie por outra rede.
+              </p>
+            )}
+          </>
         )}
 
         <button className="btn donate-cta" disabled={submitting} onClick={submit}>
