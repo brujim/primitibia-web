@@ -27,6 +27,10 @@ export default function App() {
   const { isAuthed, account, logout } = useAuth();
   const navigate = useNavigate();
 
+  // Menu mobile (hambúrguer).
+  const [menuOpen, setMenuOpen] = useState(false);
+  const closeMenu = () => setMenuOpen(false);
+
   // Descobre se a conta logada é GOD (accounts.type >= 6) p/ mostrar o link do Guard.
   const [accountType, setAccountType] = useState(0);
   useEffect(() => {
@@ -44,28 +48,41 @@ export default function App() {
         <div className="scene scene-right" />
       </div>
 
-      <header className="topbar">
-        <Link to="/" className="brand">
+      <header className={`topbar ${menuOpen ? "menu-open" : ""}`}>
+        <Link to="/" className="brand" onClick={closeMenu}>
           <img className="brand-mark" src="/emblem.png" alt="" />
           <span className="brand-word">PRIMITIVIA</span>
         </Link>
+
+        <button
+          className="hamburger"
+          aria-label="Menu"
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((v) => !v)}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+
         <div className="topbar-center">
           {DOWNLOAD_URL && (
-            <a className="btn download" href={DOWNLOAD_URL}>
+            <a className="btn download" href={DOWNLOAD_URL} onClick={closeMenu}>
               BAIXAR CLIENT
             </a>
           )}
         </div>
         <nav>
-          <Link to="/ranking">Ranking</Link>
+          <Link to="/ranking" onClick={closeMenu}>Ranking</Link>
           {isAuthed ? (
             <>
-              <Link to="/dashboard">Painel</Link>
-              {accountType >= 6 && <Link to="/admin/guard">Guard</Link>}
+              <Link to="/dashboard" onClick={closeMenu}>Painel</Link>
+              {accountType >= 6 && <Link to="/admin/guard" onClick={closeMenu}>Guard</Link>}
               <span className="acc">Conta #{account}</span>
               <button
                 className="link"
                 onClick={() => {
+                  closeMenu();
                   logout();
                   navigate("/login");
                 }}
@@ -75,8 +92,8 @@ export default function App() {
             </>
           ) : (
             <>
-              <Link to="/login">Entrar</Link>
-              <Link to="/register">Criar conta</Link>
+              <Link to="/login" onClick={closeMenu}>Entrar</Link>
+              <Link to="/register" onClick={closeMenu}>Criar conta</Link>
             </>
           )}
         </nav>

@@ -151,6 +151,32 @@ body {
 .topbar nav a:hover::after { transform: scaleX(1); }
 .acc { color: var(--muted); font-size: 13px; text-transform: none; letter-spacing: 0; }
 
+/* Hambúrguer — só aparece no mobile (ver media query) */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 44px;
+  height: 40px;
+  padding: 9px;
+  background: rgba(10, 7, 4, 0.4);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  cursor: pointer;
+}
+.hamburger span {
+  display: block;
+  height: 2px;
+  width: 100%;
+  background: var(--gold);
+  border-radius: 2px;
+  transition: transform 0.22s ease, opacity 0.2s ease;
+}
+.topbar.menu-open .hamburger span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.topbar.menu-open .hamburger span:nth-child(2) { opacity: 0; }
+.topbar.menu-open .hamburger span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
 /* ============================================================
    Layout + cards
    ============================================================ */
@@ -418,12 +444,57 @@ table.guard-table tr.reviewed { opacity: 0.5; }
 /* ============================================================
    Responsivo
    ============================================================ */
-@media (max-width: 640px) {
-  .topbar { grid-template-columns: 1fr auto; row-gap: 10px; padding: 10px 16px; }
-  .topbar-center { grid-column: 1 / -1; order: 3; justify-self: stretch; }
-  .topbar .btn.download { display: block; width: 100%; }
+/* ---- Mobile: nav vira menu hambúrguer ---- */
+@media (max-width: 768px) {
+  .topbar {
+    grid-template-columns: 1fr auto; /* marca | hambúrguer */
+    padding: 10px 16px;
+  }
+  .hamburger { display: flex; }
   .brand-word { font-size: 20px; letter-spacing: 2px; }
-  .topbar nav { gap: 14px; }
+
+  /* download + nav escondidos até abrir o menu */
+  .topbar .topbar-center,
+  .topbar nav { display: none; }
+
+  .topbar.menu-open .topbar-center {
+    display: block;
+    grid-column: 1 / -1;
+    width: 100%;
+    margin-top: 14px;
+  }
+  .topbar.menu-open .btn.download { display: block; width: 100%; }
+
+  .topbar.menu-open nav {
+    display: flex;
+    grid-column: 1 / -1;
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+  .topbar.menu-open nav a,
+  .topbar.menu-open nav .link {
+    width: 100%;
+    text-align: left;
+    padding: 13px 8px;
+    font-size: 15px;
+    border-radius: 8px;
+  }
+  .topbar.menu-open nav a::after { display: none; } /* sem sublinhado animado no dropdown */
+  .topbar.menu-open nav a:hover,
+  .topbar.menu-open nav .link:hover { background: rgba(230, 194, 115, 0.08); text-decoration: none; }
+  .topbar.menu-open nav .acc {
+    padding: 12px 8px;
+    margin-top: 4px;
+    border-top: 1px solid rgba(74, 60, 38, 0.5);
+  }
+}
+
+@media (max-width: 640px) {
   .container { margin: 28px auto; }
   .card { padding: 22px; }
 }
