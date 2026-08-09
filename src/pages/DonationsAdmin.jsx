@@ -2,7 +2,18 @@ import { useEffect, useState } from 'react'
 import { api } from '../api.js'
 
 const brl = (c) => (c / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+const num = (n) => (n || 0).toLocaleString('pt-BR')
 const dt = (t) => (t ? new Date(t * 1000).toLocaleString('pt-BR') : '—')
+
+function Stat({ label, value, sub, accent }) {
+  return (
+    <div className={`stat ${accent ? 'stat-accent' : ''}`}>
+      <div className="stat-value">{value}</div>
+      <div className="stat-label">{label}</div>
+      {sub && <div className="stat-sub">{sub}</div>}
+    </div>
+  )
+}
 
 const FILTERS = [
   { key: 'all', label: 'Todas' },
@@ -27,6 +38,7 @@ export default function DonationsAdmin() {
   const [status, setStatus] = useState('crypto_pending')
   const [page, setPage] = useState(1)
   const [rows, setRows] = useState([])
+  const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [busyId, setBusyId] = useState(0)
@@ -39,8 +51,12 @@ export default function DonationsAdmin() {
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
   }
+  function loadStats() {
+    api.donationsStats().then(setStats).catch(() => {})
+  }
 
   useEffect(() => { load() }, [status, page])
+  useEffect(() => { loadStats() }, [])
 
   async function act(id, action) {
     if (action === 'reject' && !confirm('Rejeitar esta doação? Ela não será creditada.')) return
@@ -49,6 +65,7 @@ export default function DonationsAdmin() {
     try {
       await api.donationApprove(id, action)
       load()
+      loadStats()
     } catch (e) {
       setError(e.message)
     } finally {
@@ -59,6 +76,43 @@ export default function DonationsAdmin() {
   return (
     <div className="card">
       <h1>Doações</h1>
+
+      {stats && (
+        <div className="stats">
+          <div className="stat-grid">
+            <Stat accent label="Receita total" value={brl(stats.total.brl_cents)} sub={`${stats.total.n} doações creditadas`} />
+            <Stat label="Coins vendidos (doação)" value={num(stats.coins.issued_donations)} sub="histórico — inclui já gasto" />
+            <Stat label="Coins em circulação" value={num(stats.coins.circulating)} sub="parados nas contas agora" />
+            <Stat label="Coins gastos na loja" value={num(stats.coins.spent_store)} sub="consumidos pelos players" />
+          </div>
+
+          <div className="table-wrap">
+            <table className="guard-table">
+              <thead>
+                <tr><th>Canal</th><th>Doações</th><th>Receita</th><th>Coins emitidos</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>PIX</td><td>{stats.channels.pix.n}</td>
+                  <td>{brl(stats.channels.pix.brl_cents)}</td>
+                  <td className="detected">{num(stats.channels.pix.points)}</td>
+                </tr>
+                <tr>
+                  <td>Crypto</td><td>{stats.channels.crypto.n}</td>
+                  <td>{brl(stats.channels.crypto.brl_cents)}</td>
+                  <td className="detected">{num(stats.channels.crypto.points)}</td>
+                </tr>
+                <tr className="row-total">
+                  <td><strong>Total</strong></td><td><strong>{stats.total.n}</strong></td>
+                  <td><strong>{brl(stats.total.brl_cents)}</strong></td>
+                  <td className="detected"><strong>{num(stats.total.points)}</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p className="muted stats-note">Pendentes: {stats.status.pending} · Falhas: {stats.status.failed}</p>
+        </div>
+      )}
 
       <div className="filters-row">
         {FILTERS.map((f) => (

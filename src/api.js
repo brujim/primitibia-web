@@ -43,6 +43,7 @@ export const api = {
     request(`donations_list.php?page=${page}&status=${encodeURIComponent(status)}`),
   donationApprove: (id, action) =>
     request('donation_approve.php', { method: 'POST', body: { id, action } }),
+  donationsStats:  () => request('donations_stats.php'),
   ranking:  ({ type, vocation, page }) =>
     request(`ranking.php?type=${encodeURIComponent(type)}&vocation=${encodeURIComponent(vocation)}&page=${page}`),
   createCharacter: (payload) => request('character_create.php', { method: 'POST', body: payload }),

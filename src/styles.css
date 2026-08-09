@@ -414,6 +414,23 @@ table.chars tbody tr { transition: background 0.12s ease; }
 table.chars tbody tr:hover { background: rgba(230, 194, 115, 0.06); }
 table.chars td { font-size: 14px; }
 
+/* painel de estatísticas (admin doações) */
+.stats { margin-bottom: 26px; }
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+.stat {
+  background: rgba(10, 7, 4, 0.5);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 14px;
+}
+.stat-accent { border-color: var(--gold-2); background: rgba(230, 194, 115, 0.08); }
+.stat-value { font-family: var(--display); font-size: 24px; font-weight: 700; color: var(--gold); line-height: 1.1; }
+.stat-label { color: var(--text); font-size: 13px; margin-top: 6px; }
+.stat-sub { color: var(--muted); font-size: 11px; margin-top: 2px; }
+.row-total td { border-top: 2px solid var(--border-2); }
+.stats-note { margin: 12px 0 0; font-size: 13px; }
+@media (max-width: 720px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+
 /* chips de filtro (admin) */
 .filters-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
 .chip {
