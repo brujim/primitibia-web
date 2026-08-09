@@ -31,6 +31,8 @@ export const api = {
   register: (payload) => request('register.php', { method: 'POST', body: payload }),
   login:    (payload) => request('login.php',    { method: 'POST', body: payload }),
   me:       ()        => request('me.php'),
+  status:   ()        => request('status.php'),
+  news:     ()        => request('news.php'),
   ranking:  ({ type, vocation, page }) =>
     request(`ranking.php?type=${encodeURIComponent(type)}&vocation=${encodeURIComponent(vocation)}&page=${page}`),
   createCharacter: (payload) => request('character_create.php', { method: 'POST', body: payload }),

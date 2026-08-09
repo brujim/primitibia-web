@@ -28,7 +28,13 @@ export default function Login() {
   }
 
   return (
-    <div className="card">
+    <div className="auth">
+      <div className="auth-hero">
+        <img className="auth-emblem" src="/emblem.png" alt="Primitivia" />
+        <h2 className="auth-title">PRIMITIVIA</h2>
+        <p className="auth-tagline">O reino aguarda o seu retorno.</p>
+      </div>
+      <div className="card">
       <h1>Entrar</h1>
       <form onSubmit={submit}>
         <label>Número da conta ou e-mail
@@ -40,6 +46,7 @@ export default function Login() {
         {error && <p className="error">{error}</p>}
         <button className="btn" disabled={loading}>{loading ? 'Entrando...' : 'Entrar'}</button>
       </form>
+      </div>
     </div>
   )
 }

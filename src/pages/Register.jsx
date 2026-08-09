@@ -40,7 +40,13 @@ export default function Register() {
   }
 
   return (
-    <div className="card">
+    <div className="auth">
+      <div className="auth-hero">
+        <img className="auth-emblem" src="/emblem.png" alt="Primitivia" />
+        <h2 className="auth-title">PRIMITIVIA</h2>
+        <p className="auth-tagline">Forje seu herói e junte-se ao reino.</p>
+      </div>
+      <div className="card">
       <h1>Criar conta</h1>
       <form onSubmit={submit}>
         <label>Número da conta
@@ -66,6 +72,7 @@ export default function Register() {
         {error && <p className="error">{error}</p>}
         <button className="btn" disabled={loading}>{loading ? 'Criando...' : 'Criar conta'}</button>
       </form>
+      </div>
     </div>
   )
 }
