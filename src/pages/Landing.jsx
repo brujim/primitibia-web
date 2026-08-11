@@ -46,6 +46,46 @@ function OnlineBadge() {
   )
 }
 
+function ServerSaveCountdown() {
+  const [deadline, setDeadline] = useState(null)
+  const [, setTick] = useState(0)
+
+  useEffect(() => {
+    let alive = true
+    const load = () =>
+      api.status()
+        .then((s) => {
+          if (alive && s.next_server_save && s.server_now) {
+            // Ancora nos segundos restantes calculados pelo server (imune ao relógio do cliente).
+            setDeadline(Date.now() + (s.next_server_save - s.server_now) * 1000)
+          }
+        })
+        .catch(() => {})
+    load()
+    const id = setInterval(load, 60000) // re-sincroniza (e pega o próximo SS quando este passa)
+    return () => { alive = false; clearInterval(id) }
+  }, [])
+
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 1000)
+    return () => clearInterval(t)
+  }, [])
+
+  if (!deadline) return null
+  const total = Math.max(0, Math.floor((deadline - Date.now()) / 1000))
+  const pad = (n) => String(n).padStart(2, '0')
+  const h = Math.floor(total / 3600)
+  const m = Math.floor((total % 3600) / 60)
+  const s = total % 60
+
+  return (
+    <div className="ss-countdown">
+      <span className="ss-label">Server Save em</span>
+      <span className="ss-time">{total <= 0 ? 'salvando…' : `${pad(h)}:${pad(m)}:${pad(s)}`}</span>
+    </div>
+  )
+}
+
 export default function Landing() {
   const { isAuthed } = useAuth()
   const [news, setNews] = useState([])
@@ -66,6 +106,7 @@ export default function Landing() {
           <h1 className="hero-title">PRIMITIVIA</h1>
           <p className="hero-sub">Reviva a era 7.72 num mundo primitivo, forjado por você.</p>
           <OnlineBadge />
+          <ServerSaveCountdown />
           <div className="hero-cta">
             {DOWNLOAD_URL && <a className="btn hero-btn" href={DOWNLOAD_URL}>BAIXAR CLIENT</a>}
             {isAuthed ? (
